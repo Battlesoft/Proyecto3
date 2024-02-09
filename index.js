@@ -17,43 +17,28 @@ app.get('/', function (req, res) {
 // ------------
 // MY CODE
 // ------------
-// Ruta para manejar las solicitudes POST a /api/shorturl
-app.post("/api/shorturl", function (req, res) {
-  const originalUrl = req.body.url; // Obtiene la URL original de la solicitud POST
-
-  // Verifica si la URL es válida
-  if (!isValidUrl(originalUrl)) {
-    return res.json({ error: 'invalid url' });
+app.post("/api/shorturl", function(req, res) {
+  console.log(req.body);
+  let url = req.body.url
+  if(isURl(url)){
+    let newURl = {original_url: url, short_url: tempDataID};
+    tempDataID++;
+    tempData.push(newURl);
+    res.json(newURl)
+  }else {
+    res.json({error: "invalid url"})
   }
+})
 
-  // Verifica el nombre de dominio de la URL
-  const { hostname } = new URL(originalUrl);
-  dns.lookup(hostname, (err, address) => {
-    if (err) {
-      return res.json({ error: 'invalid url' });
-    }
-
-    // Genera un identificador corto único y almacena la URL original en la base de datos
-    const shortUrl = shortUrlCounter++;
-    urlDatabase[shortUrl] = originalUrl;
-
-    // Devuelve la URL original y su identificador corto en una respuesta JSON
-    res.json({ original_url: originalUrl, short_url: shortUrl });
-  });
-});
-
-// Ruta para redirigir las solicitudes GET a URLs cortas a sus respectivas URLs originales
-app.get("/api/shorturl/:shortUrl", function (req, res) {
-  const shortUrl = req.params.shortUrl; // Obtiene el identificador corto de la solicitud GET
-  const originalUrl = urlDatabase[shortUrl]; // Obtiene la URL original correspondiente al identificador corto
-
-  // Redirige a la URL original si se encuentra en la base de datos
-  if (originalUrl) {
-    res.redirect(originalUrl);
-  } else {
-    res.status(404).send("URL not found");
+app.get("/api/shorturl/:short", function(req, res) {
+  let pos = req.params.short
+  let originalUrl = tempData[pos]
+  if(originalUrl){
+    res.redirect(originalUrl.original_url)
+  }else {
+    res.json({error: "invalid url"})
   }
-});
+})
 
 // ----------------------------------------
 
