@@ -7,16 +7,30 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors());
+var bodyParser = require('body-parser')
+app.use(bodyParser.json() );      
+app.use(bodyParser.urlencoded({     
+  extended: true
+})); 
 
 app.use('/public', express.static(`${process.cwd()}/public`));
 
-app.get('/', function (req, res) {
+app.get('/', function(req, res) {
   res.sendFile(process.cwd() + '/views/index.html');
 });
 
-// ------------
-// MY CODE
-// ------------
+// Your first API endpoint
+app.get('/api/hello', function(req, res) {
+  res.json({ greeting: 'hello API' });
+});
+
+function isURl(data) {
+  return /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/.test(data);
+}
+
+let tempData = [];
+let tempDataID = 0 ;
+
 app.post("/api/shorturl", function(req, res) {
   console.log(req.body);
   let url = req.body.url
@@ -40,13 +54,6 @@ app.get("/api/shorturl/:short", function(req, res) {
   }
 })
 
-// ----------------------------------------
-
-// Your first API endpoint
-app.get('/api/hello', function (req, res) {
-  res.json({ greeting: 'hello API' });
-});
-
-app.listen(port, function () {
+app.listen(port, function() {
   console.log(`Listening on port ${port}`);
 });
